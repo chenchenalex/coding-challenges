@@ -1,11 +1,17 @@
 class Bird {
-  constructor() {
+  constructor(brain) {
     this.y = height / 2;
-    this.x = 16;
+    this.x = 40;
     this.gravity = 1;
     this.velocity = 0;
     this.radius = 16;
-    this.brain = new NeuralNetwork(4, 4, 1);
+
+    if (brain) {
+      this.brain = brain.copy();
+    } else {
+      this.brain = new NeuralNetwork(5, 8, 1);
+    }
+    this.score = 0;
   }
 
   show() {
@@ -14,7 +20,11 @@ class Bird {
     ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
   }
   up() {
-    this.velocity -= this.gravity * 13;
+    this.velocity -= this.gravity * 16;
+  }
+
+  mutate(rate) {
+    this.brain.mutate(rate);
   }
 
   think(pipes) {
@@ -37,14 +47,18 @@ class Bird {
     inputs[1] = closest.top / height;
     inputs[2] = closest.bottom / height;
     inputs[3] = closest.x / width;
+    inputs[4] = this.velocity / 10;
 
-    let output = this.brain.predict(inputs);
+    let output;
+    output = this.brain.predict(inputs);
+
     if (output[0] > 0.5) {
       this.up();
     }
   }
 
   update() {
+    this.score++;
     this.y += this.velocity;
 
     if (this.y >= height - this.radius) {

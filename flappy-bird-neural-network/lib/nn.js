@@ -14,15 +14,14 @@ let sigmoid = new ActivationFunction(
 
 let tanh = new ActivationFunction(
   x => Math.tanh(x),
-  y => 1 - (y * y)
+  y => 1 - y * y
 );
-
 
 class NeuralNetwork {
   /*
-  * if first argument is a NeuralNetwork the constructor clones it
-  * USAGE: cloned_nn = new NeuralNetwork(to_clone_nn);
-  */
+   * if first argument is a NeuralNetwork the constructor clones it
+   * USAGE: cloned_nn = new NeuralNetwork(to_clone_nn);
+   */
   constructor(in_nodes, hid_nodes, out_nodes) {
     if (in_nodes instanceof NeuralNetwork) {
       let a = in_nodes;
@@ -54,12 +53,9 @@ class NeuralNetwork {
     // TODO: copy these as well
     this.setLearningRate();
     this.setActivationFunction();
-
-
   }
 
   predict(input_array) {
-
     // Generating the Hidden Outputs
     let inputs = Matrix.fromArray(input_array);
     let hidden = Matrix.multiply(this.weights_ih, inputs);
@@ -110,7 +106,6 @@ class NeuralNetwork {
     gradients.multiply(output_errors);
     gradients.multiply(this.learning_rate);
 
-
     // Calculate deltas
     let hidden_T = Matrix.transpose(hidden);
     let weight_ho_deltas = Matrix.multiply(gradients, hidden_T);
@@ -147,10 +142,14 @@ class NeuralNetwork {
   }
 
   static deserialize(data) {
-    if (typeof data == 'string') {
+    if (typeof data == "string") {
       data = JSON.parse(data);
     }
-    let nn = new NeuralNetwork(data.input_nodes, data.hidden_nodes, data.output_nodes);
+    let nn = new NeuralNetwork(
+      data.input_nodes,
+      data.hidden_nodes,
+      data.output_nodes
+    );
     nn.weights_ih = Matrix.deserialize(data.weights_ih);
     nn.weights_ho = Matrix.deserialize(data.weights_ho);
     nn.bias_h = Matrix.deserialize(data.bias_h);
@@ -159,20 +158,24 @@ class NeuralNetwork {
     return nn;
   }
 
-
   // Adding function for neuro-evolution
   copy() {
     return new NeuralNetwork(this);
   }
 
   // Accept an arbitrary function for mutation
-  mutate(func) {
-    this.weights_ih.map(func);
-    this.weights_ho.map(func);
-    this.bias_h.map(func);
-    this.bias_o.map(func);
+  mutate(rate) {
+    function mutate(val) {
+      if (Math.random() < rate) {
+        return val + randomGaussian(0, 0.1);
+      } else {
+        return val;
+      }
+    }
+
+    this.weights_ih.map(mutate);
+    this.weights_ho.map(mutate);
+    this.bias_h.map(mutate);
+    this.bias_o.map(mutate);
   }
-
-
-
 }
