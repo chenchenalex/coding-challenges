@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import AppHeader from "./components/Header";
+import JobCardList from "./components/JobCardList";
 import { getUserProfile } from "./API";
 export const ProfileContext = createContext({});
 
@@ -19,9 +19,7 @@ function App() {
       <ProfileContext.Provider value={profile}>
         <AppHeader />
 
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />s
-        </header>
+        <JobCardList workerId={profile ? profile.workerId : null} />
       </ProfileContext.Provider>
     </div>
   );
